@@ -200,6 +200,7 @@ Tomcat()
 			TomcatOutAccess
 		fi
 	}
+	
 Wildfly()
 	{	
 		if [ -e /opt/wildfly-13.0.0.Final ]
@@ -216,6 +217,31 @@ Wildfly()
             tar -zxvf wildfly-13.0.0.Final.tar.gz
 			fi
 	}
+	WildFlyVersion()
+{
+sh /opt/wildfly-13.0.0.Final/bin/standalone.sh --version
+}
+WildFlyStart()
+{
+ sh /opt/wildfly-13.0.0.Final/bin/standalone.sh -b=0.0.0.0 -bmanagement=0.0.0.0
+ }
+ WildFlyStop()
+ {
+  sh /opt/wildfly-13.0.0.Final/bin/jboss-cli.sh --connect command=:shutdown
+}
+WildFlyAddUser()
+{
+	sh /opt/wildfly-13.0.0.Final/bin/add-user.sh
+}
+WildFlyPort()
+  {
+  cat -n /opt/wildfly-13.0.0.Final/standalone/configuration/standalone.xml | sed '506!d'
+  }
+  SonarService()
+{
+	sudo ln -s /home/ec2-user/sonarqube-7.2.1/bin/linux-x86-64/sonar.sh /usr/bin/sonar
+	sudo chmod 755 /etc/init.d/sonar
+}
 Sonarscanner()
 	{
 		sonar-scanner -v
@@ -259,6 +285,7 @@ Sonarqube()
             unzip sonarqube-7.2.1.zip
 		fi
 	}
+	
 Nexus()
  {
 	if [ -e /opt/nexus-nexus ]
@@ -566,13 +593,78 @@ Git()
 	esac
 	;;
  6)
-	Wildfly
+	echo "Slect a Option "
+	echo " 1. Install WildFly "
+	echo " 2. WildFlyVersion "
+	echo " 3. Add User to WildFly"
+	echo " 4. Start WildFly "
+	echo " 5. Stop WildFly "
+	echo " 6. Restart WildFly "
+	echo " 7. Disply http Port"
+	echo " Enter a Number "
+	read wild
+	case $wild in
+	1)
+		Wildfly
+		
+		;;
+	2)
+		WildFlyVersion
+		;;
+	3)
+		WildFlyAddUser
+		;;
+	4)
+		WildFlyStart
+		;;
+	5)
+		WildFlyStop
+		;;
+	6) WildFlyStop
+	   WildFlyStart
+	   echo " WildFly Restarted "
+	   ;;
+	 7)
+		WildFlyPort
+		;;
+
+	*)
+	echo " Please Enter a valid Number "
+	;;
+	esac
 	;;
  7)
-	Sonarqube
-	echo "==========================================================================================="
-	echo " please execute " source /etc/bashrc " command manually after completion of the installion "
-	echo "==========================================================================================="
+	echo "Slect a Option "
+	echo " 1. Install Sonarqube "
+	echo " 2. Start the Sonarqube "
+	echo " 3. Stop the Sonarqube"
+	echo " 4. Status of the Sonarqube"
+	echo " 5. Restart Sonarqube"
+	echo " Enter a Number "
+	read qube
+	case $qube in
+	1)
+		Sonarqube
+		;;
+	2)
+		cd /home/ec2-user/sonarqube-7.2.1
+		sudo rm -rf temp 
+		 service sonar start
+		;;
+	3)
+		 service sonar stop
+		;;
+	4)
+		 service sonar status
+		;;
+	5)
+		service sonar restart
+		;;
+	*)
+	echo " Please Enter a valid Number "
+	;;
+	esac
+	
 	;;
  8)
 	Nexus
